@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<otrs_package version="1.0">
+    <Name>MinimumLogLevel</Name>
+    <Version>0.0.1</Version>
+    <Framework>3.0.x</Framework>
+    <Vendor>Renee Baecker, Perl-Services.de</Vendor>
+    <URL>http://perl-services.de/</URL>
+    <License>GNU AFFERO GENERAL PUBLIC LICENSE Version 3, November 2007</License>
+    <Description Lang="en">A module that makes the admin menu more flexible.</Description>
+    <Description Lang="de">Ein Modul, das das Admin-Menue flexibler macht.</Description>
+    <Filelist>
+        <File Permission="644" Location="Kernel/Config/Files/MinimumLogLevel.xml"/>
+        <File Permission="644" Location="Kernel/System/Log.pm"/>
+    </Filelist>
+</otrs_package>
