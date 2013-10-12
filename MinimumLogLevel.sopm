@@ -12,6 +12,7 @@
     <Description Lang="en">A module that makes the admin menu more flexible.</Description>
     <Description Lang="de">Ein Modul, das das Admin-Menue flexibler macht.</Description>
     <Filelist>
+        <File Permission="644" Location="doc/en/MinimumLogLevel.pod" />
         <File Permission="644" Location="Kernel/Config/Files/MinimumLogLevel.xml"/>
         <File Permission="644" Location="Kernel/System/Log.pm"/>
     </Filelist>

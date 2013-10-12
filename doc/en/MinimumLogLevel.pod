@@ -1,0 +1,28 @@
+=head1 NAME
+
+MinimumLogLevel
+
+=head1 DESCRIPTION
+
+OTRS writes loads of "notice" log messages to the log. Those messages are not
+very interesting on a live system. There you are interested in error messages.
+
+Currently OTRS lacks of config options where you can define the lowest priority
+of messages to be logged.
+
+If you use SysLog for logging, you can define a minimum log level for Syslog. But
+if you use a logfile, you can't.
+
+This module adds a SysConfig option where you can define the minimum log level.
+
+=head1 LICENSE AND AUTHOR
+
+This add on is licensed under the term of AGPL 3.
+
+Renee Baecker - reneeb@cpan.org
+
+=head1 SOURCES
+
+You can find the sources at http://github.com:/reneeb/otrs-MinimumLogLevel
+
+=cut
