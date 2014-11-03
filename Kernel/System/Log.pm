@@ -1,7 +1,7 @@
 # --
 # Kernel/System/Log.pm - log wapper
-# Copyright (C) 2001-2013 OTRS AG, http://otrs.com/
-# Changes Copyright (C) 2011-2013 Renee Baecker, http://perl-services.de
+# Copyright (C) 2001-2014 OTRS AG, http://otrs.com/
+# Changes Copyright (C) 2011-2014 Renee Baecker, http://perl-services.de
 # --
 # This software comes with ABSOLUTELY NO WARRANTY. For details, see
 # the enclosed file COPYING for license information (AGPL). If you
@@ -17,7 +17,12 @@ package Kernel::System::Log;
 use strict;
 use warnings;
 
-use Kernel::System::Encode;
+use Carp ();
+
+our @ObjectDependencies = (
+    'Kernel::Config',
+    'Kernel::System::Encode',
+);
 
 =head1 NAME
 
@@ -35,21 +40,15 @@ All log functions.
 
 =item new()
 
-create a log object
+create a log object. Do not use it directly, instead use:
 
-    use Kernel::Config;
-    use Kernel::System::Encode;
-    use Kernel::System::Log;
-
-    my $ConfigObject = Kernel::Config->new();
-    my $EncodeObject = Kernel::System::Encode->new(
-        ConfigObject => $ConfigObject,
+    use Kernel::System::ObjectManager;
+    local $Kernel::OM = Kernel::System::ObjectManager->new(
+        'Kernel::System::Log' => {
+            LogPrefix => 'InstallScriptX',  # not required, but highly recommend
+        },
     );
-    my $LogObject    = Kernel::System::Log->new(
-        ConfigObject => $ConfigObject,
-        EncodeObject => $EncodeObject,
-        LogPrefix    => 'InstallScriptX',  # not required, but highly recommend
-    );
+    my $LogObject = $Kernel::OM->Get('Kernel::System::Log');
 
 =cut
 
@@ -68,30 +67,26 @@ sub new {
     my ( $Type, %Param ) = @_;
 
     # allocate new hash for object
-    my $Self = { %Param };
+    my $Self = {};
     bless( $Self, $Type );
 
-    # get config object
-    if ( !$Param{ConfigObject} ) {
-        die 'Got no ConfigObject!';
+    if ( !$Kernel::OM ) {
+        Carp::confess('$Kernel::OM is not defined, please initialize your object manager')
     }
 
-    $Self->{ProductVersion} = $Param{ConfigObject}->Get('Product') . ' ';
-    $Self->{ProductVersion} .= $Param{ConfigObject}->Get('Version');
+    my $ConfigObject = $Kernel::OM->Get('Kernel::Config');
+    $Self->{ProductVersion} = $ConfigObject->Get('Product') . ' ';
+    $Self->{ProductVersion} .= $ConfigObject->Get('Version');
 
     # get system id
-    my $SystemID = $Param{ConfigObject}->Get('SystemID');
-
-    # get or create encode object
-    $Self->{EncodeObject} = $Param{EncodeObject};
-    $Self->{EncodeObject} ||= Kernel::System::Encode->new( %{$Self} );
+    my $SystemID = $ConfigObject->Get('SystemID');
 
     # check log prefix
     $Self->{LogPrefix} = $Param{LogPrefix} || '?LogPrefix?';
     $Self->{LogPrefix} .= '-' . $SystemID;
 
     # load log backend
-    my $GenericModule = $Param{ConfigObject}->Get('LogModule') || 'Kernel::System::Log::SysLog';
+    my $GenericModule = $ConfigObject->Get('LogModule') || 'Kernel::System::Log::SysLog';
     if ( !eval "require $GenericModule" ) {    ## no critic
         die "Can't load log backend module $GenericModule! $@";
     }
@@ -99,7 +94,6 @@ sub new {
     # create backend handle
     $Self->{Backend} = $GenericModule->new(
         %Param,
-        EncodeObject => $Self->{EncodeObject},
     );
 
     return $Self if !eval "require IPC::SysV";    ## no critic
@@ -107,7 +101,7 @@ sub new {
     # create the IPC options
     $Self->{IPC}     = 1;
     $Self->{IPCKey}  = '444423' . $SystemID;
-    $Self->{IPCSize} = $Param{ConfigObject}->Get('LogSystemCacheSize') || 32 * 1024;
+    $Self->{IPCSize} = $ConfigObject->Get('LogSystemCacheSize') || 32 * 1024;
 
 # ---
 # PS
@@ -167,6 +161,7 @@ sub Log {
 # ---
 # PS
 # ---
+#    my $Priority = $Param{Priority} || 'debug';
     my $Priority    = lc $Param{Priority}  || 'debug';
     my $PriorityNum = $LogLevel{$Priority} || $LogLevel{debug};
 
@@ -229,22 +224,12 @@ sub Log {
 
             eval { $VersionString = $Package1->VERSION || ''; };    ## no critic
 
-            # Version is present
+            # version is present
             if ($VersionString) {
-                $VersionString = 'v' . $VersionString;
+                $VersionString = ' (v' . $VersionString . ')';
             }
 
-            # OTRS modules do not have a version variable
-            elsif ( index( $Package1, 'Kernel::' ) > -1 ) {
-                $VersionString = $Self->{ProductVersion};
-            }
-
-            # Other modules
-            else {
-                $VersionString = 'unknown version';
-            }
-
-            $Error .= "   Module: $Subroutine2 ($VersionString) Line: $Line1\n";
+            $Error .= "   Module: $Subroutine2$VersionString Line: $Line1\n";
 
             last COUNT if !$Line2;
         }
@@ -310,7 +295,7 @@ sub GetLog {
     }
 
     # encode the string
-    $Self->{EncodeObject}->EncodeInput( \$String );
+    $Kernel::OM->Get('Kernel::System::Encode')->EncodeInput( \$String );
 
     return $String;
 }
