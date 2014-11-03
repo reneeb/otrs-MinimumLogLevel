@@ -1,16 +1,13 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <otrs_package version="1.0">
     <Name>MinimumLogLevel</Name>
-    <Version>3.3.2</Version>
-    <Framework>3.0.x</Framework>
-    <Framework>3.1.x</Framework>
-    <Framework>3.2.x</Framework>
-    <Framework>3.3.x</Framework>
+    <Version>4.0.1</Version>
+    <Framework>4.0.x</Framework>
     <Vendor>Renee Baecker, Perl-Services.de</Vendor>
     <URL>http://perl-services.de/</URL>
     <License>GNU AFFERO GENERAL PUBLIC LICENSE Version 3, November 2007</License>
-    <Description Lang="en">A module that makes the admin menu more flexible.</Description>
-    <Description Lang="de">Ein Modul, das das Admin-Menue flexibler macht.</Description>
+    <Description Lang="en">Log only message with a given log level (or above).</Description>
+    <Description Lang="de">Logge nur Meldungen mit einem bestimmten Loglevel (oder darüber).</Description>
     <Filelist>
         <File Permission="644" Location="doc/en/MinimumLogLevel.pod" />
         <File Permission="644" Location="Kernel/Config/Files/MinimumLogLevel.xml"/>
